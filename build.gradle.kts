@@ -6,7 +6,7 @@ plugins {
 
 group = "com.resonance"
 version = "0.0.1-SNAPSHOT"
-description = "resonance-back"
+description = "resonance-api"
 
 java {
     toolchain {
