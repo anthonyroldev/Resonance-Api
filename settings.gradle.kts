@@ -1,1 +1,1 @@
-rootProject.name = "resonance-back"
+rootProject.name = "resonance-api"
