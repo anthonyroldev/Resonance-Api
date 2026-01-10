@@ -4,16 +4,25 @@ import com.resonance.entities.enums.OAuthProvider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_email", columnList = "email"),
+                @Index(name = "idx_spotify_id", columnList = "spotify_id")
+        }
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,10 +42,9 @@ public class User {
     private OAuthProvider oauthProvider;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UserLibraryEntry> libraryEntries = new HashSet<>();
 }
