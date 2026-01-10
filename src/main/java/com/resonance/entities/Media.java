@@ -40,7 +40,7 @@ public class Media {
     @Column(name = "spotify_uri", nullable = false, length = 100)
     private String spotifyUri;
 
-    @Column(name = "average_rating", precision = 3, scale = 2)
+    @Column(name = "average_rating", columnDefinition = "NUMERIC(3, 2)")
     private Double averageRating;
 
     @Column(name = "rating_count", nullable = false)

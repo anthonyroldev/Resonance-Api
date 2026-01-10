@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1768066954-users" author="Antho">
+        <createTable tableName="users">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="spotify_id" type="VARCHAR(255)"/>
+            <column name="oauth_provider" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <createIndex indexName="idx_email" tableName="users">
+            <column name="email"/>
+        </createIndex>
+        <createIndex indexName="idx_spotify_id" tableName="users">
+            <column name="spotify_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1768066955-media" author="resonance">
+        <createTable tableName="media">
+            <column name="id" type="VARCHAR(62)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="artist_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(255)"/>
+            <column name="release_date" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="spotify_uri" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="average_rating" type="NUMERIC(3, 2)"/>
+            <column name="rating_count" type="INTEGER" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cached_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1768066956-user-library-entry" author="resonance">
+        <createTable tableName="user_library_entry">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_library_user" references="users(id)"/>
+            </column>
+            <column name="media_id" type="VARCHAR(62)">
+                <constraints nullable="false" foreignKeyName="fk_library_media" references="media(id)"/>
+            </column>
+            <column name="rating" type="INTEGER"/>
+            <column name="is_favorite" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="TEXT"/>
+            <column name="added_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="user_library_entry" 
+                             columnNames="user_id, media_id" 
+                             constraintName="uk_user_media"/>
+
+        <createIndex indexName="idx_user_media" tableName="user_library_entry">
+            <column name="user_id"/>
+            <column name="media_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_user_favorite" tableName="user_library_entry">
+            <column name="user_id"/>
+            <column name="is_favorite"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -8,9 +8,13 @@ spring:
     password: ${DB_PASSWORD}
 
   jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
       hibernate:
-        ddl-auto: update
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
-          format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: ${SHOW_SQL:false}
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
