@@ -4,6 +4,7 @@ import com.resonance.entities.enums.MediaType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,11 +12,13 @@ import java.time.Instant;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "media")
-public class Media {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
+public abstract class Media {
     // Spotify id
     @Id
     @Column(length = 62)
@@ -34,10 +37,10 @@ public class Media {
     private String releaseDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false, insertable = false, updatable = false)
     private MediaType type;
 
-    @Column(name = "spotify_uri", nullable = false, length = 100)
+    @Column(name = "spotify_uri", length = 100)
     private String spotifyUri;
 
     @Column(name = "average_rating", columnDefinition = "NUMERIC(3, 2)")
@@ -48,6 +51,7 @@ public class Media {
     private Integer ratingCount = 0;
 
     @Column(name = "cached_at", nullable = false)
+    @Builder.Default
     private Instant cachedAt = Instant.now();
 }
 

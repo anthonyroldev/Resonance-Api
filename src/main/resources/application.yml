@@ -18,3 +18,11 @@ spring:
     show-sql: ${SHOW_SQL:false}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+
+audiodb:
+  base-url: https://www.theaudiodb.com/api/v2/json/${AUDIODB_API_KEY}
+
+spotify:
+  base-url: https://api.spotify.com/v1
+  client-id: ${SPOTIFY_CLIENT_ID}
+  client-secret: ${SPOTIFY_CLIENT_SECRET}

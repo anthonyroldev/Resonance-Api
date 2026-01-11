@@ -33,7 +33,7 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="1768066955-media" author="resonance">
+    <changeSet id="1768066955-media" author="Antho">
         <createTable tableName="media">
             <column name="id" type="VARCHAR(62)">
                 <constraints primaryKey="true" nullable="false"/>
@@ -59,10 +59,25 @@
             <column name="cached_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            
+            <column name="audio_db_album_id" type="VARCHAR(20)"/>
+            <column name="audio_db_track_id" type="VARCHAR(20)"/>
+            <column name="artist_audio_db_id" type="VARCHAR(20)"/>
+            <column name="description" type="TEXT"/>
+            <column name="genre" type="VARCHAR(255)"/>
+            <column name="style" type="VARCHAR(255)"/>
+            <column name="mood" type="VARCHAR(255)"/>
+            <column name="label" type="VARCHAR(255)"/>
+            <column name="gender" type="VARCHAR(50)"/>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="formed_year" type="VARCHAR(10)"/>
+            <column name="duration" type="INTEGER"/>
+            <column name="track_number" type="INTEGER"/>
+            <column name="thumbnail_url" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
 
-    <changeSet id="1768066956-user-library-entry" author="resonance">
+    <changeSet id="1768066956-user-library-entry" author="Antho">
         <createTable tableName="user_library_entry">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
