@@ -21,7 +21,8 @@ import java.util.UUID;
 @Table(name = "users",
         indexes = {
                 @Index(name = "idx_email", columnList = "email"),
-                @Index(name = "idx_spotify_id", columnList = "spotify_id")
+                @Index(name = "idx_spotify_id", columnList = "spotify_id"),
+                @Index(name = "idx_google_id", columnList = "google_id")
         }
 )
 public class User {
@@ -37,6 +38,9 @@ public class User {
 
     @Column(name = "spotify_id")
     private String spotifyId;
+
+    @Column(name = "google_id")
+    private String googleId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth_provider", nullable = false)
