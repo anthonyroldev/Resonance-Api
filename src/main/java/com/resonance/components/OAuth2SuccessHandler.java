@@ -3,7 +3,9 @@ package com.resonance.components;
 import com.resonance.entities.User;
 import com.resonance.entities.enums.OAuthProvider;
 import com.resonance.repository.UserRepository;
+import com.resonance.service.JwtService;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,9 +25,16 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @Value("${app.frontend-url:http://localhost:3000}")
     private String frontendUrl;
+
+    @Value("${spring.security.jwt.cookie-name}")
+    private String cookieName;
+
+    @Value("${spring.security.jwt.expiration}")
+    private int jwtExpiration;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -43,6 +52,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String providerId = extractProviderId(oauth2User, provider);
 
         User user = userRepository.findByEmail(email)
+                .map(existingUser -> updateExistingUser(existingUser, provider, providerId))
                 .orElseGet(() -> User.builder()
                         .email(email)
                         .username(name)
@@ -53,7 +63,29 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         userRepository.save(user);
 
+        String jwt = jwtService.generateToken(user);
+        addCookie(response, jwt);
+
         getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/dashboard");
+    }
+
+    private User updateExistingUser(User user, OAuthProvider provider, String providerId) {
+        if (provider == OAuthProvider.GOOGLE && user.getGoogleId() == null) {
+            user.setGoogleId(providerId);
+        } else if (provider == OAuthProvider.SPOTIFY && user.getSpotifyId() == null) {
+            user.setSpotifyId(providerId);
+        }
+        return user;
+    }
+
+    private void addCookie(HttpServletResponse response, String jwt) {
+        Cookie cookie = new Cookie(cookieName, jwt);
+        cookie.setHttpOnly(true);
+        // false en dev
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(jwtExpiration / 1000);
+        response.addCookie(cookie);
     }
 
     private String extractEmail(OAuth2User oauth2User, OAuthProvider provider) {
