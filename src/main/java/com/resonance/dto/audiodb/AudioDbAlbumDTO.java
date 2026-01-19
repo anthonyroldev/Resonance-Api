@@ -1,4 +1,4 @@
-package com.resonance.dto;
+package com.resonance.dto.audiodb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

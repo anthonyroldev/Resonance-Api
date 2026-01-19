@@ -1,8 +1,8 @@
 package com.resonance.client;
 
-import com.resonance.dto.AudioDbAlbumResponseDTO;
-import com.resonance.dto.AudioDbArtistResponseDTO;
-import com.resonance.dto.AudioDbTrackResponseDTO;
+import com.resonance.dto.audiodb.AudioDbAlbumResponseDTO;
+import com.resonance.dto.audiodb.AudioDbArtistResponseDTO;
+import com.resonance.dto.audiodb.AudioDbTrackResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;

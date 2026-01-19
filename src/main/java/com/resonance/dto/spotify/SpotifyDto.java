@@ -1,4 +1,4 @@
-package com.resonance.dto;
+package com.resonance.dto.spotify;
 
 import lombok.Builder;
 
