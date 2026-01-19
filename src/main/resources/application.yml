@@ -29,20 +29,31 @@ spring:
             scope:
               - email
               - profile
-#          spotify:
-#            client-id: ${SPOTIFY_CLIENT_ID}
-#            client-secret: ${SPOTIFY_CLIENT_SECRET}
-#            authorization-grant-type: authorization_code
-#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-#            scope:
-#              - user-read-email
-#              - user-read-private
-#        provider:
-#          spotify:
-#            authorization-uri: https://accounts.spotify.com/authorize
-#            token-uri: https://accounts.spotify.com/api/token
-#            user-info-uri: https://api.spotify.com/v1/me
-#            user-name-attribute: id
+              - https://www.googleapis.com/auth/youtube.readonly
+        #          spotify:
+        #            client-id: ${SPOTIFY_CLIENT_ID}
+        #            client-secret: ${SPOTIFY_CLIENT_SECRET}
+        #            authorization-grant-type: authorization_code
+        #            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        #            scope:
+        #              - user-read-email
+        #              - user-read-private
+        #        provider:
+        #          spotify:
+        #            authorization-uri: https://accounts.spotify.com/authorize
+        #            token-uri: https://accounts.spotify.com/api/token
+        #            user-info-uri: https://api.spotify.com/v1/me
+        #            user-name-attribute: id
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      expiration: 86400000 # 24 hours
+      cookie-name: AUTH_TOKEN
 
 audiodb:
   base-url: https://www.theaudiodb.com/api/v2/json/${AUDIODB_API_KEY}
