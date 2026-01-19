@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        
+
         String jwt = null;
         Cookie cookie = WebUtils.getCookie(request, cookieName);
         if (cookie != null) {
@@ -77,5 +77,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/api/public")
+                || path.startsWith("/actuator")
+                || path.startsWith("/api/auth")
+                || path.startsWith("/oauth2")
+                || path.equals("/swagger-ui.html");
     }
 }

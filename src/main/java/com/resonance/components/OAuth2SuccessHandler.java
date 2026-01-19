@@ -94,7 +94,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private String extractName(OAuth2User oauth2User, OAuthProvider provider) {
         return switch (provider) {
-            case GOOGLE -> oauth2User.getAttribute("name");
+            case GOOGLE, LOCAL -> oauth2User.getAttribute("name");
             case SPOTIFY -> oauth2User.getAttribute("display_name");
         };
     }
@@ -102,7 +102,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String extractProviderId(OAuth2User oauth2User, OAuthProvider provider) {
         return switch (provider) {
             case GOOGLE -> oauth2User.getAttribute("sub");
-            case SPOTIFY -> oauth2User.getAttribute("id");
+            case LOCAL, SPOTIFY -> oauth2User.getAttribute("id");
         };
     }
 }

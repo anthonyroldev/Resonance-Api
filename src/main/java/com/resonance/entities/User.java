@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @Column(name = "google_id")
     private String googleId;
 
+    @Column(name = "password")
+    private String password;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth_provider", nullable = false)
     private OAuthProvider oauthProvider;
@@ -64,7 +67,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null; // No password for OAuth users
+        return password;
     }
 
 }
