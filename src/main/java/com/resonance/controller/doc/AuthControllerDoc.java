@@ -1,0 +1,18 @@
+package com.resonance.controller.doc;
+
+import com.resonance.dto.auth.AuthResponse;
+import com.resonance.dto.auth.LoginRequest;
+import com.resonance.dto.auth.RegisterRequest;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@Schema(description = "Authentification par email et mot de passe.")
+public interface AuthControllerDoc {
+    @Schema(description = "Inscrit un nouvel utilisateur et retourne un token d'authentification.")
+    ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request);
+
+    @Schema(description = "Authentifie un utilisateur existant et retourne un token d'authentification.")
+    ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request);
+}
