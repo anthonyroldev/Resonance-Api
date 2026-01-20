@@ -32,13 +32,13 @@ public class SecurityConfig {
     private String frontUrl;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/public/**", "/actuator/**", "/login/**",
+                        .requestMatchers("/api/auth/**", "/api/public/**", "/actuator/**",
                                 "/oauth2/**", "/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
