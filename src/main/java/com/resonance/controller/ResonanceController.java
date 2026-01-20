@@ -42,8 +42,6 @@ public class ResonanceController implements ResonanceControllerDoc {
     private final LibraryService libraryService;
     private final UserRepository userRepository;
 
-    // ==================== SEARCH ENDPOINTS ====================
-
     @Override
     @GetMapping("/search/albums")
     public ResponseEntity<SearchResponse<MediaResponse>> searchAlbums(@RequestParam String q) {
@@ -60,10 +58,8 @@ public class ResonanceController implements ResonanceControllerDoc {
 
     @Override
     @GetMapping("/search/tracks")
-    public ResponseEntity<SearchResponse<MediaResponse>> searchTracks(
-            @RequestParam String artist,
-            @RequestParam String track) {
-        SearchResponse<MediaResponse> response = searchService.searchTracks(artist, track);
+    public ResponseEntity<SearchResponse<MediaResponse>> searchTracks(@RequestParam String q) {
+        SearchResponse<MediaResponse> response = searchService.searchTracks(q);
         return ResponseEntity.ok(response);
     }
 

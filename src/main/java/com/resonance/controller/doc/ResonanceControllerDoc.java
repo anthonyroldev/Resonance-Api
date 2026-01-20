@@ -56,57 +56,55 @@ public interface ResonanceControllerDoc {
 
     @Operation(
             summary = "Rechercher des pistes",
-            description = "Recherche des pistes par nom d'artiste et de piste via AudioDB."
+            description = "Recherche des pistes par terme de recherche via iTunes."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Recherche effectuee avec succes"),
             @ApiResponse(responseCode = "400", description = "Requete invalide")
     })
     ResponseEntity<SearchResponse<MediaResponse>> searchTracks(
-            @Parameter(description = "Nom de l'artiste", example = "Daft Punk")
-            @RequestParam String artist,
-            @Parameter(description = "Nom de la piste", example = "Around the World")
-            @RequestParam String track
+            @Parameter(description = "Terme de recherche pour la piste", example = "Around the World")
+            @RequestParam String q
     );
 
     // ==================== GET BY ID ENDPOINTS ====================
 
     @Operation(
             summary = "Obtenir un album par ID",
-            description = "Recupere les details d'un album par son ID Spotify. Utilise le cache local si disponible."
+            description = "Recupere les details d'un album par son ID iTunes. Utilise le cache local si disponible."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Album trouve avec succes"),
             @ApiResponse(responseCode = "404", description = "Album non trouve")
     })
     ResponseEntity<MediaResponse> getAlbumById(
-            @Parameter(description = "ID Spotify de l'album", example = "4aawyAB9vmqN3uQ7FjRGTy")
+            @Parameter(description = "ID iTunes de l'album", example = "1440857781")
             @PathVariable String id
     );
 
     @Operation(
             summary = "Obtenir un artiste par ID",
-            description = "Recupere les details d'un artiste par son ID Spotify. Utilise le cache local si disponible."
+            description = "Recupere les details d'un artiste par son ID iTunes. Utilise le cache local si disponible."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artiste trouve avec succes"),
             @ApiResponse(responseCode = "404", description = "Artiste non trouve")
     })
     ResponseEntity<MediaResponse> getArtistById(
-            @Parameter(description = "ID Spotify de l'artiste", example = "4tZwfgrHOc3mvqYlEYSvVi")
+            @Parameter(description = "ID iTunes de l'artiste", example = "5468295")
             @PathVariable String id
     );
 
     @Operation(
             summary = "Obtenir une piste par ID",
-            description = "Recupere les details d'une piste par son ID Spotify. Utilise le cache local si disponible."
+            description = "Recupere les details d'une piste par son ID iTunes. Utilise le cache local si disponible."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Piste trouvee avec succes"),
             @ApiResponse(responseCode = "404", description = "Piste non trouvee")
     })
     ResponseEntity<MediaResponse> getTrackById(
-            @Parameter(description = "ID Spotify de la piste", example = "3cfOd4CMv2snFaKAnMdnvK")
+            @Parameter(description = "ID iTunes de la piste", example = "1440857786")
             @PathVariable String id
     );
 
@@ -156,7 +154,7 @@ public interface ResonanceControllerDoc {
     })
     @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
     ResponseEntity<Void> removeFromLibrary(
-            @Parameter(description = "ID Spotify du media a supprimer")
+            @Parameter(description = "ID iTunes du media a supprimer")
             @PathVariable String mediaId,
             Principal principal
     );
@@ -194,7 +192,7 @@ public interface ResonanceControllerDoc {
     })
     @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
     ResponseEntity<LibraryEntryResponse> getLibraryEntry(
-            @Parameter(description = "ID Spotify du media")
+            @Parameter(description = "ID iTunes du media")
             @PathVariable String mediaId,
             Principal principal
     );

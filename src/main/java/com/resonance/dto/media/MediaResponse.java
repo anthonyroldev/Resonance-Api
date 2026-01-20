@@ -12,12 +12,9 @@ public record MediaResponse(
     String imageUrl,
     String releaseDate,
     MediaType type,
-    String spotifyUri,
+    String itunesUrl,
     Double averageRating,
     Integer ratingCount,
-    // Additional metadata (from AudioDB)
     String description,
-    String genre,
-    String style,
-    String mood
+    String genre
 ) {}

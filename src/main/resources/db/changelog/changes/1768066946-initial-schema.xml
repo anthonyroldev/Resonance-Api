@@ -35,6 +35,7 @@
 
     <changeSet id="1768066955-media" author="Antho">
         <createTable tableName="media">
+            <!-- iTunes collection/track/artist ID -->
             <column name="id" type="VARCHAR(62)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -44,14 +45,12 @@
             <column name="artist_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="image_url" type="VARCHAR(255)"/>
+            <column name="image_url" type="VARCHAR(512)"/>
             <column name="release_date" type="VARCHAR(255)"/>
             <column name="type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="spotify_uri" type="VARCHAR(100)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="itunes_url" type="VARCHAR(512)"/>
             <column name="average_rating" type="NUMERIC(3, 2)"/>
             <column name="rating_count" type="INTEGER" defaultValueNumeric="0">
                 <constraints nullable="false"/>
@@ -60,20 +59,15 @@
                 <constraints nullable="false"/>
             </column>
             
-            <column name="audio_db_album_id" type="VARCHAR(20)"/>
-            <column name="audio_db_track_id" type="VARCHAR(20)"/>
-            <column name="artist_audio_db_id" type="VARCHAR(20)"/>
+            <!-- Shared metadata fields -->
             <column name="description" type="TEXT"/>
             <column name="genre" type="VARCHAR(255)"/>
-            <column name="style" type="VARCHAR(255)"/>
-            <column name="mood" type="VARCHAR(255)"/>
             <column name="label" type="VARCHAR(255)"/>
-            <column name="gender" type="VARCHAR(50)"/>
-            <column name="country" type="VARCHAR(255)"/>
-            <column name="formed_year" type="VARCHAR(10)"/>
+            
+            <!-- Track-specific fields -->
             <column name="duration" type="INTEGER"/>
             <column name="track_number" type="INTEGER"/>
-            <column name="thumbnail_url" type="VARCHAR(255)"/>
+            <column name="thumbnail_url" type="VARCHAR(512)"/>
         </createTable>
     </changeSet>
 

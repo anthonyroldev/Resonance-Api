@@ -17,23 +17,11 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("ALBUM")
 public class Album extends Media {
 
-    @Column(name = "audio_db_album_id", length = 20)
-    private String audioDbAlbumId;
-
-    @Column(name = "artist_audio_db_id", length = 20)
-    private String audioDbArtistId;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "genre")
     private String genre;
-
-    @Column(name = "style")
-    private String style;
-
-    @Column(name = "mood")
-    private String mood;
 
     @Column(name = "label")
     private String label;

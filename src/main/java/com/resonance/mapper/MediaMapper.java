@@ -11,10 +11,8 @@ import org.mapstruct.Mapping;
 /**
  * MapStruct mapper for converting media entities to MediaResponse.
  * <p>
- * This mapper handles only Entity -> Response mappings.
- * For external API DTOs, use the specialized mappers:
- * - {@link ReccoBeatsMapper} for ReccoBeats/Spotify data
- * - {@link AudioDbMapper} for AudioDB data
+ * This mapper handles Entity -> Response mappings.
+ * For external API DTOs, use ITunesMediaMapper.
  */
 @Mapper(componentModel = "spring")
 public interface MediaMapper {
@@ -31,7 +29,5 @@ public interface MediaMapper {
     @Mapping(target = "type", constant = "TRACK")
     @Mapping(target = "imageUrl", source = "thumbnailUrl")
     @Mapping(target = "releaseDate", ignore = true)
-    @Mapping(target = "style", ignore = true)
-    @Mapping(target = "mood", ignore = true)
     MediaResponse trackToResponse(Track track);
 }

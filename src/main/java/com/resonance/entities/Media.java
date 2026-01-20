@@ -19,7 +19,9 @@ import java.time.Instant;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
 public abstract class Media {
-    // Spotify id
+    /**
+     * iTunes collection/track/artist ID
+     */
     @Id
     @Column(length = 62)
     private String id;
@@ -30,7 +32,7 @@ public abstract class Media {
     @Column(name = "artist_name", nullable = false)
     private String artistName;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 512)
     private String imageUrl;
 
     @Column(name = "release_date")
@@ -40,8 +42,8 @@ public abstract class Media {
     @Column(name = "type", nullable = false, insertable = false, updatable = false)
     private MediaType type;
 
-    @Column(name = "spotify_uri", length = 100)
-    private String spotifyUri;
+    @Column(name = "itunes_url", length = 512)
+    private String itunesUrl;
 
     @Column(name = "average_rating", columnDefinition = "NUMERIC(3, 2)")
     private Double averageRating;
@@ -54,5 +56,3 @@ public abstract class Media {
     @Builder.Default
     private Instant cachedAt = Instant.now();
 }
-
-

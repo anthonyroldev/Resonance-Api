@@ -17,15 +17,6 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("TRACK")
 public class Track extends Media {
 
-    @Column(name = "audio_db_track_id", length = 20)
-    private String audioDbTrackId;
-
-    @Column(name = "audio_db_album_id", length = 20)
-    private String audioDbAlbumId;
-
-    @Column(name = "artist_audio_db_id", length = 20)
-    private String audioDbArtistId;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -38,6 +29,6 @@ public class Track extends Media {
     @Column(name = "track_number")
     private Integer trackNumber;
 
-    @Column(name = "thumbnail_url")
+    @Column(name = "thumbnail_url", length = 512)
     private String thumbnailUrl;
 }
