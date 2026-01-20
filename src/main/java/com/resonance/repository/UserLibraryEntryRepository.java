@@ -1,8 +1,10 @@
 package com.resonance.repository;
 
 import com.resonance.entities.UserLibraryEntry;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,4 +12,9 @@ public interface UserLibraryEntryRepository extends JpaRepository<UserLibraryEnt
 
     Optional<UserLibraryEntry> findByUserIdAndMediaId(UUID userId, String mediaId);
 
+    List<UserLibraryEntry> findAllByUserId(UUID userId);
+
+    List<UserLibraryEntry> findByUserIdAndIsFavoriteTrue(UUID userId);
+
+    boolean existsByUserIdAndMediaId(UUID userId, String mediaId);
 }

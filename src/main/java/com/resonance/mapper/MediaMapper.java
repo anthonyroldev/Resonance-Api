@@ -4,11 +4,9 @@ import com.resonance.dto.audiodb.AudioDbTrackDTO;
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.reccobeats.ReccoBeatsAlbumDTO;
 import com.resonance.dto.reccobeats.ReccoBeatsArtistDTO;
-import com.resonance.entities.enums.MediaType;
 import com.resonance.entities.media.Album;
 import com.resonance.entities.media.Artist;
 import com.resonance.entities.media.Track;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
