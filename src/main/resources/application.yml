@@ -15,7 +15,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: ${SHOW_SQL:false}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
 
