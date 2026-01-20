@@ -6,7 +6,10 @@ import com.resonance.entities.enums.MediaType;
 import com.resonance.entities.media.Album;
 import com.resonance.entities.media.Artist;
 import com.resonance.entities.media.Track;
-import com.resonance.external.itunes.MusicMetadataProvider;
+import com.resonance.external.itunes.ITunesClient;
+import com.resonance.external.itunes.ITunesEntityMapper;
+import com.resonance.external.itunes.ITunesResponse;
+import com.resonance.external.itunes.ITunesResult;
 import com.resonance.mapper.MediaMapper;
 import com.resonance.repository.MediaRepository;
 
@@ -19,17 +22,52 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 /**
- * Service for managing media entities and external API lookups.
- * Uses iTunes as the external music metadata provider.
+ * Service for managing media entities with lazy caching strategy.
+ * <p>
+ * Implements a "lazy loading" pattern:
+ * 1. Check local database cache first
+ * 2. If not found, fetch from iTunes API
+ * 3. Persist to database for future requests
+ * 4. Return the result
+ * <p>
+ * This minimizes external API calls while building the local database organically.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MediaService {
 
-    private final MusicMetadataProvider musicMetadataProvider;
     private final MediaRepository mediaRepository;
     private final MediaMapper mediaMapper;
+    private final ITunesClient iTunesClient;
+    private final ITunesEntityMapper iTunesEntityMapper;
+
+    /**
+     * Get media by ID with lazy caching (auto-detects type from iTunes).
+     * <p>
+     * This is the primary method for retrieving media. It:
+     * 1. Checks the local cache first
+     * 2. If not found, fetches from iTunes and persists to DB
+     * 3. Returns the MediaResponse DTO
+     *
+     * @param id the iTunes ID (collectionId, trackId, or artistId)
+     * @return MediaResponse for the media, or null if not found
+     */
+    @Transactional
+    public MediaResponse getMediaById(String id) {
+        log.debug("Getting media by ID: {}", id);
+
+        // 1. Check cache first
+        Optional<Media> cached = mediaRepository.findById(id);
+        if (cached.isPresent()) {
+            log.debug("Media found in cache: {}", id);
+            return mapMediaToResponse(cached.get());
+        }
+
+        // 2. Fetch from iTunes
+        log.debug("Media not in cache, fetching from iTunes: {}", id);
+        return fetchAndCacheFromItunes(id);
+    }
 
     /**
      * Get album by ID. Checks cache first, then fetches from external API if not found.
@@ -37,7 +75,7 @@ public class MediaService {
      * @param id the album ID (iTunes collection ID)
      * @return MediaResponse for the album, or null if not found
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public MediaResponse getAlbumById(String id) {
         log.debug("Getting album by ID: {}", id);
 
@@ -48,8 +86,8 @@ public class MediaService {
             return mediaMapper.albumToResponse(album);
         }
 
-        log.debug("Album not in cache, fetching from external API: {}", id);
-        return musicMetadataProvider.lookupById(id);
+        log.debug("Album not in cache, fetching from iTunes: {}", id);
+        return fetchAndCacheAlbumFromItunes(id);
     }
 
     /**
@@ -58,7 +96,7 @@ public class MediaService {
      * @param id the artist ID (iTunes artist ID)
      * @return MediaResponse for the artist, or null if not found
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public MediaResponse getArtistById(String id) {
         log.debug("Getting artist by ID: {}", id);
 
@@ -69,8 +107,8 @@ public class MediaService {
             return mediaMapper.artistToResponse(artist);
         }
 
-        log.debug("Artist not in cache, fetching from external API: {}", id);
-        return musicMetadataProvider.lookupById(id);
+        log.debug("Artist not in cache, fetching from iTunes: {}", id);
+        return fetchAndCacheArtistFromItunes(id);
     }
 
     /**
@@ -79,7 +117,7 @@ public class MediaService {
      * @param id the track ID (iTunes track ID)
      * @return MediaResponse for the track, or null if not found
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public MediaResponse getTrackById(String id) {
         log.debug("Getting track by ID: {}", id);
 
@@ -90,8 +128,8 @@ public class MediaService {
             return mediaMapper.trackToResponse(track);
         }
 
-        log.debug("Track not in cache, fetching from external API: {}", id);
-        return musicMetadataProvider.lookupById(id);
+        log.debug("Track not in cache, fetching from iTunes: {}", id);
+        return fetchAndCacheTrackFromItunes(id);
     }
 
     /**
@@ -126,6 +164,179 @@ public class MediaService {
         log.debug("Should update rating stats for media: {}", media.getId());
     }
 
+    // ==================== Private Helper Methods ====================
+
+    /**
+     * Fetches media from iTunes and caches it to the database.
+     * Auto-detects the media type from the iTunes response.
+     */
+    private MediaResponse fetchAndCacheFromItunes(String id) {
+        try {
+            Long itunesId = Long.parseLong(id);
+            ITunesResponse response = iTunesClient.lookupById(itunesId);
+
+            if (response.results() == null || response.results().isEmpty()) {
+                log.debug("No results from iTunes for ID: {}", id);
+                return null;
+            }
+
+            ITunesResult result = response.results().getFirst();
+            Media media = mapResultToEntity(result);
+
+            if (media == null) {
+                log.warn("Could not map iTunes result to entity for ID: {}", id);
+                return null;
+            }
+
+            media = mediaRepository.save(media);
+            log.info("Cached new media from iTunes: {} (type: {})", id, media.getType());
+
+            return mapMediaToResponse(media);
+
+        } catch (NumberFormatException e) {
+            log.warn("Invalid iTunes ID format: {}", id);
+            return null;
+        }
+    }
+
+    /**
+     * Fetches an album from iTunes and caches it to the database.
+     */
+    private MediaResponse fetchAndCacheAlbumFromItunes(String id) {
+        try {
+            Long itunesId = Long.parseLong(id);
+            ITunesResponse response = iTunesClient.lookupById(itunesId);
+
+            if (response.results() == null || response.results().isEmpty()) {
+                log.debug("No album found in iTunes for ID: {}", id);
+                return null;
+            }
+
+            ITunesResult result = response.results().getFirst();
+            if (!"collection".equals(result.wrapperType())) {
+                log.debug("iTunes result for ID {} is not an album (type: {})", id, result.wrapperType());
+                return null;
+            }
+
+            Album album = iTunesEntityMapper.toAlbumEntity(result);
+            if (album == null) {
+                return null;
+            }
+
+            album = mediaRepository.save(album);
+            log.info("Cached new album from iTunes: {}", id);
+
+            return mediaMapper.albumToResponse(album);
+
+        } catch (NumberFormatException e) {
+            log.warn("Invalid iTunes ID format: {}", id);
+            return null;
+        }
+    }
+
+    /**
+     * Fetches an artist from iTunes and caches it to the database.
+     */
+    private MediaResponse fetchAndCacheArtistFromItunes(String id) {
+        try {
+            Long itunesId = Long.parseLong(id);
+            ITunesResponse response = iTunesClient.lookupById(itunesId);
+
+            if (response.results() == null || response.results().isEmpty()) {
+                log.debug("No artist found in iTunes for ID: {}", id);
+                return null;
+            }
+
+            ITunesResult result = response.results().getFirst();
+            if (!"artist".equals(result.wrapperType())) {
+                log.debug("iTunes result for ID {} is not an artist (type: {})", id, result.wrapperType());
+                return null;
+            }
+
+            Artist artist = iTunesEntityMapper.toArtistEntity(result);
+            if (artist == null) {
+                return null;
+            }
+
+            artist = mediaRepository.save(artist);
+            log.info("Cached new artist from iTunes: {}", id);
+
+            return mediaMapper.artistToResponse(artist);
+
+        } catch (NumberFormatException e) {
+            log.warn("Invalid iTunes ID format: {}", id);
+            return null;
+        }
+    }
+
+    /**
+     * Fetches a track from iTunes and caches it to the database.
+     */
+    private MediaResponse fetchAndCacheTrackFromItunes(String id) {
+        try {
+            Long itunesId = Long.parseLong(id);
+            ITunesResponse response = iTunesClient.lookupById(itunesId);
+
+            if (response.results() == null || response.results().isEmpty()) {
+                log.debug("No track found in iTunes for ID: {}", id);
+                return null;
+            }
+
+            ITunesResult result = response.results().getFirst();
+            if (!"track".equals(result.wrapperType())) {
+                log.debug("iTunes result for ID {} is not a track (type: {})", id, result.wrapperType());
+                return null;
+            }
+
+            Track track = iTunesEntityMapper.toTrackEntity(result);
+            if (track == null) {
+                return null;
+            }
+
+            track = mediaRepository.save(track);
+            log.info("Cached new track from iTunes: {}", id);
+
+            return mediaMapper.trackToResponse(track);
+
+        } catch (NumberFormatException e) {
+            log.warn("Invalid iTunes ID format: {}", id);
+            return null;
+        }
+    }
+
+    /**
+     * Maps an iTunes result to the appropriate entity type based on wrapperType.
+     */
+    private Media mapResultToEntity(ITunesResult result) {
+        return switch (result.wrapperType()) {
+            case "collection" -> iTunesEntityMapper.toAlbumEntity(result);
+            case "track" -> iTunesEntityMapper.toTrackEntity(result);
+            case "artist" -> iTunesEntityMapper.toArtistEntity(result);
+            default -> {
+                log.warn("Unknown iTunes wrapper type: {}", result.wrapperType());
+                yield null;
+            }
+        };
+    }
+
+    /**
+     * Maps a Media entity to the appropriate MediaResponse DTO.
+     */
+    private MediaResponse mapMediaToResponse(Media media) {
+        return switch (media) {
+            case Album album -> mediaMapper.albumToResponse(album);
+            case Track track -> mediaMapper.trackToResponse(track);
+            case Artist artist -> mediaMapper.artistToResponse(artist);
+            default -> {
+                log.warn("Unknown media type: {}", media.getClass().getSimpleName());
+                yield null;
+            }
+        };
+    }
+
+    /**
+     * Creates a minimal media entity and saves it (legacy method for library entries).
+     */
     private Media createAndCacheMedia(String itunesId, MediaType type, String title, String artistName) {
         Media media = switch (type) {
             case ALBUM -> createAlbum(itunesId, title, artistName);
