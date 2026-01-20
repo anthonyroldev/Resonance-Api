@@ -4,10 +4,8 @@ import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.reccobeats.ReccoBeatsAlbumDTO;
 import com.resonance.dto.reccobeats.ReccoBeatsArtistDTO;
 import com.resonance.dto.reccobeats.ReccoBeatsTrackDTO;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 import java.util.List;
 
@@ -17,9 +15,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ReccoBeatsMapper {
 
-    // ==================== Artist mappings ====================
-
-    @Mapping(target = "id", source = "href", qualifiedByName = "extractSpotifyIdFromUrl")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "spotifyUri", source = "href")
     @Mapping(target = "type", constant = "ARTIST")
@@ -38,7 +33,6 @@ public interface ReccoBeatsMapper {
 
     // ==================== Album mappings ====================
 
-    @Mapping(target = "id", source = "href", qualifiedByName = "extractSpotifyIdFromUrl")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "spotifyUri", source = "href")
     @Mapping(target = "type", constant = "ALBUM")
@@ -57,7 +51,6 @@ public interface ReccoBeatsMapper {
 
     // ==================== Track mappings ====================
 
-    @Mapping(target = "id", source = "href", qualifiedByName = "extractSpotifyIdFromUrl")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "spotifyUri", source = "href")
     @Mapping(target = "type", constant = "TRACK")
@@ -74,21 +67,4 @@ public interface ReccoBeatsMapper {
 
     List<MediaResponse> tracksToResponses(List<ReccoBeatsTrackDTO> dtos);
 
-    // ==================== Helper methods ====================
-
-    /**
-     * Extracts the Spotify ID from a Spotify URL.
-     * Example: "https://api.spotify.com/v1/artists/0f3C3g5HiVbe2znBvdEtno" -> "0f3C3g5HiVbe2znBvdEtno"
-     */
-    @Named("extractSpotifyIdFromUrl")
-    default String extractSpotifyIdFromUrl(String href) {
-        if (href == null || href.isBlank()) {
-            return null;
-        }
-        int lastSlash = href.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < href.length() - 1) {
-            return href.substring(lastSlash + 1);
-        }
-        return null;
-    }
 }

@@ -8,7 +8,8 @@ import com.resonance.dto.media.SearchResponse;
 import com.resonance.dto.reccobeats.ReccoBeatsAlbumDTO;
 import com.resonance.dto.reccobeats.ReccoBeatsArtistDTO;
 import com.resonance.dto.reccobeats.ReccoBeatsSearchResponseDTO;
-import com.resonance.mapper.MediaMapper;
+import com.resonance.mapper.AudioDbMapper;
+import com.resonance.mapper.ReccoBeatsMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,8 @@ public class SearchService {
 
     private final ReccoBeatsClient reccoBeatsClient;
     private final AudioDBClient audioDBClient;
-    private final MediaMapper mediaMapper;
+    private final ReccoBeatsMapper reccoBeatsMapper;
+    private final AudioDbMapper audioDbMapper;
 
     /**
      * Search albums by query. Returns results from ReccoBeats API.
@@ -33,7 +35,7 @@ public class SearchService {
         log.debug("Searching albums with query: {}", query);
         ReccoBeatsSearchResponseDTO<ReccoBeatsAlbumDTO> response = reccoBeatsClient.searchAlbum(query);
 
-        List<MediaResponse> albums = mediaMapper.reccoBeatsAlbumsToResponses(response.content());
+        List<MediaResponse> albums = reccoBeatsMapper.albumsToResponses(response.content());
 
         return buildSearchResponse(albums, response.page(), response.size(), response.totalElements(), response.totalPages());
     }
@@ -45,7 +47,7 @@ public class SearchService {
         log.debug("Searching artists with query: {}", query);
         ReccoBeatsSearchResponseDTO<ReccoBeatsArtistDTO> response = reccoBeatsClient.searchArtist(query);
 
-        List<MediaResponse> artists = mediaMapper.reccoBeatsArtistsToResponses(response.content());
+        List<MediaResponse> artists = reccoBeatsMapper.artistsToResponses(response.content());
 
         return buildSearchResponse(artists, response.page(), response.size(), response.totalElements(), response.totalPages());
     }
@@ -67,7 +69,7 @@ public class SearchService {
                     .build();
         }
 
-        List<MediaResponse> tracks = mediaMapper.audioDbTracksToResponses(response.track());
+        List<MediaResponse> tracks = audioDbMapper.tracksToResponses(response.track());
 
         return SearchResponse.<MediaResponse>builder()
                 .content(tracks)
