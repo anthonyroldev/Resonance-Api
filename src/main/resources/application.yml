@@ -60,7 +60,7 @@ spring:
       default: v1
 
 audiodb:
-  base-url: https://www.theaudiodb.com/api/v2/json/${AUDIODB_API_KEY}
+  base-url: https://www.theaudiodb.com/api/v1/json/${AUDIODB_API_KEY}
 
 reccobeats:
   url: https://api.reccobeats.com/v1
