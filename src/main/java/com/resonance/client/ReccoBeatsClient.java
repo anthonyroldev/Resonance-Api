@@ -34,7 +34,7 @@ public class ReccoBeatsClient {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/artist/search")
-                        .queryParam("name", query)
+                        .queryParam("searchText", query)
                         .build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ReccoBeatsSearchResponseDTO<ReccoBeatsArtistDTO>>() {})

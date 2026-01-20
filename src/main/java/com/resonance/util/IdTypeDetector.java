@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public final class IdTypeDetector {
 
-    private static final Pattern SPOTIFY_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9]{22}$");
+    private static final Pattern ROCCABEATS_ID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern AUDIODB_ID_PATTERN = Pattern.compile("^\\d+$");
 
     private IdTypeDetector() {
@@ -55,7 +55,7 @@ public final class IdTypeDetector {
         if (id == null || id.isBlank()) {
             return false;
         }
-        return SPOTIFY_ID_PATTERN.matcher(id).matches();
+        return ROCCABEATS_ID_PATTERN.matcher(id).matches();
     }
 
     /**
