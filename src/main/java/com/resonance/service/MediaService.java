@@ -1,24 +1,24 @@
 package com.resonance.service;
 
 import com.resonance.client.AudioDBClient;
-import com.resonance.dto.audiodb.AudioDbAlbumDTO;
-import com.resonance.dto.audiodb.AudioDbAlbumResponseDTO;
-import com.resonance.dto.audiodb.AudioDbArtistDTO;
-import com.resonance.dto.audiodb.AudioDbArtistResponseDTO;
-import com.resonance.dto.audiodb.AudioDbTrackDTO;
-import com.resonance.dto.audiodb.AudioDbTrackResponseDTO;
+import com.resonance.client.ReccoBeatsClient;
+import com.resonance.dto.audiodb.*;
 import com.resonance.dto.media.MediaResponse;
+import com.resonance.dto.reccobeats.ReccoBeatsAlbumDTO;
+import com.resonance.dto.reccobeats.ReccoBeatsArtistDTO;
 import com.resonance.entities.Media;
 import com.resonance.entities.enums.MediaType;
 import com.resonance.entities.media.Album;
 import com.resonance.entities.media.Artist;
 import com.resonance.entities.media.Track;
+import com.resonance.mapper.AudioDbMapper;
 import com.resonance.mapper.MediaMapper;
+import com.resonance.mapper.ReccoBeatsMapper;
 import com.resonance.repository.MediaRepository;
-
+import com.resonance.util.IdTypeDetector;
+import com.resonance.util.IdTypeDetector.IdType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,58 +30,67 @@ import java.util.Optional;
 public class MediaService {
 
     private final AudioDBClient audioDBClient;
+    private final ReccoBeatsClient reccoBeatsClient;
     private final MediaRepository mediaRepository;
     private final MediaMapper mediaMapper;
+    private final AudioDbMapper audioDbMapper;
+    private final ReccoBeatsMapper reccoBeatsMapper;
 
     /**
-     * Get album by Spotify ID. Checks cache first.
+     * Get album by ID. Automatically detects ID type and routes to appropriate API.
+     * Checks cache first.
      */
     @Transactional(readOnly = true)
-    public MediaResponse getAlbumById(String spotifyId) {
-        log.debug("Getting album by ID: {}", spotifyId);
+    public MediaResponse getAlbumById(String id) {
+        log.debug("Getting album by ID: {}", id);
 
-        Optional<Media> cached = mediaRepository.findById(spotifyId);
+        // Check cache first
+        Optional<Media> cached = mediaRepository.findById(id);
         if (cached.isPresent() && cached.get() instanceof Album album) {
-            log.debug("Album found in cache: {}", spotifyId);
+            log.debug("Album found in cache: {}", id);
             return mediaMapper.albumToResponse(album);
         }
 
-        log.debug("Album not found in cache: {}", spotifyId);
-        return null;
+        log.debug("Album not in cache, fetching from external API: {}", id);
+        return fetchAlbumFromExternalApi(id);
     }
 
     /**
-     * Get artist by Spotify ID. Checks cache first.
+     * Get artist by ID. Automatically detects ID type and routes to appropriate API.
+     * Checks cache first.
      */
     @Transactional(readOnly = true)
-    public MediaResponse getArtistById(String spotifyId) {
-        log.debug("Getting artist by ID: {}", spotifyId);
+    public MediaResponse getArtistById(String id) {
+        log.debug("Getting artist by ID: {}", id);
 
-        Optional<Media> cached = mediaRepository.findById(spotifyId);
+        // Check cache first
+        Optional<Media> cached = mediaRepository.findById(id);
         if (cached.isPresent() && cached.get() instanceof Artist artist) {
-            log.debug("Artist found in cache: {}", spotifyId);
+            log.debug("Artist found in cache: {}", id);
             return mediaMapper.artistToResponse(artist);
         }
 
-        log.debug("Artist not found in cache: {}", spotifyId);
-        return null;
+        log.debug("Artist not in cache, fetching from external API: {}", id);
+        return fetchArtistFromExternalApi(id);
     }
 
     /**
-     * Get track by Spotify ID. Checks cache first.
+     * Get track by ID. Automatically detects ID type and routes to appropriate API.
+     * Checks cache first.
      */
     @Transactional(readOnly = true)
-    public MediaResponse getTrackById(String spotifyId) {
-        log.debug("Getting track by ID: {}", spotifyId);
+    public MediaResponse getTrackById(String id) {
+        log.debug("Getting track by ID: {}", id);
 
-        Optional<Media> cached = mediaRepository.findById(spotifyId);
+        // Check cache first
+        Optional<Media> cached = mediaRepository.findById(id);
         if (cached.isPresent() && cached.get() instanceof Track track) {
-            log.debug("Track found in cache: {}", spotifyId);
+            log.debug("Track found in cache: {}", id);
             return mediaMapper.trackToResponse(track);
         }
 
-        log.debug("Track not found in cache: {}", spotifyId);
-        return null;
+        log.debug("Track not in cache, fetching from external API: {}", id);
+        return fetchTrackFromExternalApi(id);
     }
 
     /**
@@ -107,7 +116,118 @@ public class MediaService {
         log.debug("Should update rating stats for media: {}", media.getId());
     }
 
-    // ==================== PRIVATE HELPER METHODS ====================
+
+    private MediaResponse fetchAlbumFromExternalApi(String id) {
+        IdType idType = IdTypeDetector.detectIdType(id);
+
+        return switch (idType) {
+            case SPOTIFY -> fetchAlbumFromReccoBeats(id);
+            case AUDIODB -> fetchAlbumFromAudioDb(id);
+            case UNKNOWN -> {
+                log.warn("Unknown ID type for album: {}", id);
+                yield null;
+            }
+        };
+    }
+
+    private MediaResponse fetchArtistFromExternalApi(String id) {
+        IdType idType = IdTypeDetector.detectIdType(id);
+
+        return switch (idType) {
+            case SPOTIFY -> fetchArtistFromReccoBeats(id);
+            case AUDIODB -> fetchArtistFromAudioDb(id);
+            case UNKNOWN -> {
+                log.warn("Unknown ID type for artist: {}", id);
+                yield null;
+            }
+        };
+    }
+
+    private MediaResponse fetchTrackFromExternalApi(String id) {
+        IdType idType = IdTypeDetector.detectIdType(id);
+
+        return switch (idType) {
+            case SPOTIFY -> {
+                // ReccoBeats doesn't have a track endpoint, return null
+                log.debug("ReccoBeats doesn't support track lookup by Spotify ID");
+                yield null;
+            }
+            case AUDIODB -> fetchTrackFromAudioDb(id);
+            case UNKNOWN -> {
+                log.warn("Unknown ID type for track: {}", id);
+                yield null;
+            }
+        };
+    }
+
+    private MediaResponse fetchAlbumFromReccoBeats(String spotifyId) {
+        try {
+            log.debug("Fetching album from ReccoBeats API: {}", spotifyId);
+            ReccoBeatsAlbumDTO dto = reccoBeatsClient.getAlbumById(spotifyId);
+            if (dto != null) {
+                return reccoBeatsMapper.albumToResponse(dto);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch album from ReccoBeats: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private MediaResponse fetchArtistFromReccoBeats(String spotifyId) {
+        try {
+            log.debug("Fetching artist from ReccoBeats API: {}", spotifyId);
+            ReccoBeatsArtistDTO dto = reccoBeatsClient.getArtistById(spotifyId);
+            if (dto != null) {
+                return reccoBeatsMapper.artistToResponse(dto);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch artist from ReccoBeats: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private MediaResponse fetchAlbumFromAudioDb(String audioDbId) {
+        try {
+            log.debug("Fetching album from AudioDB API: {}", audioDbId);
+            AudioDbAlbumResponseDTO response = audioDBClient.getAlbumById(audioDbId);
+            if (response != null && response.album() != null && !response.album().isEmpty()) {
+                AudioDbAlbumDTO dto = response.album().getFirst();
+                return audioDbMapper.albumToResponse(dto);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch album from AudioDB: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private MediaResponse fetchArtistFromAudioDb(String audioDbId) {
+        try {
+            log.debug("Fetching artist from AudioDB API: {}", audioDbId);
+            AudioDbArtistResponseDTO response = audioDBClient.getArtistById(audioDbId);
+            if (response != null && response.artists() != null && !response.artists().isEmpty()) {
+                AudioDbArtistDTO dto = response.artists().getFirst();
+                return audioDbMapper.artistToResponse(dto);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch artist from AudioDB: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private MediaResponse fetchTrackFromAudioDb(String audioDbId) {
+        try {
+            log.debug("Fetching track from AudioDB API: {}", audioDbId);
+            AudioDbTrackResponseDTO response = audioDBClient.getTrackById(audioDbId);
+            if (response != null && response.track() != null && !response.track().isEmpty()) {
+                AudioDbTrackDTO dto = response.track().getFirst();
+                return audioDbMapper.trackToResponse(dto);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch track from AudioDB: {}", e.getMessage());
+        }
+        return null;
+    }
+
 
     private Media createAndCacheMedia(String spotifyId, MediaType type, String title, String artistName) {
         Media media = switch (type) {
