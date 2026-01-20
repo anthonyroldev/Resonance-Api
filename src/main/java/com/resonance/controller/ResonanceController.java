@@ -154,7 +154,7 @@ public class ResonanceController implements ResonanceControllerDoc {
     }
 
     private User getCurrentUser(Principal principal) {
-        return userRepository.findByEmail(principal.getName())
+        return userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalStateException("User not found: " + principal.getName()));
     }
 }

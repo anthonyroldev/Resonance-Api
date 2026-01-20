@@ -14,8 +14,8 @@ import java.util.Objects;
 @Component
 public final class ITunesMediaMapper {
 
-    private static final String ARTWORK_SIZE_SMALL = "100x100";
-    private static final String ARTWORK_SIZE_LARGE = "600x600";
+    private static final String ARTWORK_SIZE_SMALL = "100x100bb";
+    private static final String ARTWORK_SIZE_LARGE = "600x600bb";
 
     /**
      * Converts an ITunesResult (album/collection) to a MediaResponse.
@@ -80,7 +80,7 @@ public final class ITunesMediaMapper {
                 .artistName(result.artistName())
                 .imageUrl(null) // Artists don't have artwork in iTunes Search API
                 .type(MediaType.ARTIST)
-                .itunesUrl(result.artistViewUrl())
+                .itunesUrl(result.artistLinkUrl())
                 .genre(result.primaryGenreName())
                 .build();
     }
