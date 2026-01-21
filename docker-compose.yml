@@ -1,4 +1,16 @@
 services:
+  app:
+    build: .
+    container_name: resonance-api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-resonance_db}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:16-alpine
     container_name: resonance-db
