@@ -2,8 +2,8 @@ package com.resonance.service;
 
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.media.SearchResponse;
-import com.resonance.entities.Media;
 import com.resonance.external.itunes.ITunesClient;
+import com.resonance.external.itunes.ITunesMediaMapper;
 import com.resonance.external.itunes.ITunesResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service for generating discovery feed content.
@@ -47,6 +47,7 @@ public class FeedService {
     private static final int MAX_ITUNES_LIMIT = 200; // iTunes API max
 
     private final ITunesClient iTunesClient;
+    private final ITunesMediaMapper iTunesMediaMapper;
     private final MediaService mediaService;
     private final SecureRandom random = new SecureRandom();
 
@@ -86,8 +87,22 @@ public class FeedService {
         if (rawResults.isEmpty()) {
             return buildEmptyResponse(page);
         }
-        List<Media> syncedMedia = mediaService.syncTracks(new ArrayList<>(new HashSet<>(rawResults)));
-        List<MediaResponse> allResults = new ArrayList<>(mediaService.toMediaResponses(syncedMedia));
+
+        // Deduplicate by track ID
+        List<ITunesResult> uniqueResults = new ArrayList<>(rawResults.stream()
+                .filter(r -> r.trackId() != null)
+                .collect(Collectors.toMap(
+                        ITunesResult::trackId,
+                        r -> r,
+                        (a, _) -> a
+                ))
+                .values());
+
+        // Sync to DB in background (eager caching)
+        mediaService.syncTracks(uniqueResults);
+
+        // Build responses from iTunes results to preserve previewUrl
+        List<MediaResponse> allResults = new ArrayList<>(iTunesMediaMapper.toTrackResponses(uniqueResults));
 
         Collections.shuffle(allResults, random);
         List<MediaResponse> pageContent = allResults.stream()

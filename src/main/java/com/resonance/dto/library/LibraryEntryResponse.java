@@ -14,6 +14,7 @@ public record LibraryEntryResponse(
     String mediaTitle,
     String artistName,
     String imageUrl,
+    String previewUrl,
     MediaType mediaType,
     Integer rating,
     boolean isFavorite,

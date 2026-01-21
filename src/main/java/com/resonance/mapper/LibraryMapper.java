@@ -19,6 +19,7 @@ public interface LibraryMapper {
     @Mapping(target = "artistName", source = "media.artistName")
     @Mapping(target = "imageUrl", source = "media.imageUrl")
     @Mapping(target = "mediaType", source = "media.type")
+    @Mapping(target = "previewUrl", source = "media.previewUrl")
     @Mapping(target = "isFavorite", source = "favorite")
     LibraryEntryResponse toResponse(UserLibraryEntry entry);
 

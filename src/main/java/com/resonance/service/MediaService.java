@@ -29,21 +29,6 @@ import java.util.stream.Collectors;
 
 /**
  * Service for managing media entities with caching strategies.
- * <p>
- * Implements two caching patterns:
- * <p>
- * <b>Lazy Caching</b> (for individual lookups):
- * 1. Check local database cache first
- * 2. If not found, fetch from iTunes API
- * 3. Persist to database for future requests
- * 4. Return the result
- * <p>
- * <b>Eager Caching</b> (for search/feed results):
- * 1. Fetch results from iTunes API
- * 2. Batch check which entities already exist in DB
- * 3. Persist new entities to database
- * 4. Return merged list of all entities
- * <p>
  * This builds the local database organically as users browse and search.
  */
 @Slf4j
@@ -58,14 +43,6 @@ public class MediaService {
 
     /**
      * Get media by ID with lazy caching (auto-detects type from iTunes).
-     * <p>
-     * This is the primary method for retrieving media. It:
-     * 1. Checks the local cache first
-     * 2. If not found, fetches from iTunes and persists to DB
-     * 3. Returns the MediaResponse DTO
-     *
-     * @param id the iTunes ID (collectionId, trackId, or artistId)
-     * @return MediaResponse for the media, or null if not found
      */
     @Transactional
     public MediaResponse getMediaById(String id) {
@@ -168,17 +145,6 @@ public class MediaService {
 
     /**
      * Sync albums from iTunes results to local DB (Eager Caching).
-     * <p>
-     * Algorithm:
-     * 1. Filter valid album results
-     * 2. Batch fetch existing entities from DB
-     * 3. Filter out already-cached entities
-     * 4. Map new results to Album entities
-     * 5. Batch save new entities
-     * 6. Return merged list (existing + newly saved)
-     *
-     * @param results list of iTunes results to sync
-     * @return list of Media entities (from DB) corresponding to the input results
      */
     @Transactional
     public List<Media> syncAlbums(List<ITunesResult> results) {

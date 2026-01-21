@@ -45,6 +45,9 @@ public abstract class Media {
     @Column(name = "itunes_url", length = 512)
     private String itunesUrl;
 
+    @Column(name = "preview_url", length = 512)
+    private String previewUrl;
+
     @Column(name = "average_rating", columnDefinition = "NUMERIC(3, 2)")
     private Double averageRating;
 
