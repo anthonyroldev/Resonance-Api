@@ -66,7 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String jwt = jwtService.generateToken(user);
         addCookie(response, jwt);
 
-        getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/dashboard");
+        getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/");
     }
 
     private User updateExistingUser(User user, OAuthProvider provider, String providerId) {

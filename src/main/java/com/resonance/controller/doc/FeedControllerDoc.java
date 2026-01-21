@@ -1,18 +1,18 @@
 package com.resonance.controller.doc;
 
 import com.resonance.dto.media.MediaResponse;
+import com.resonance.dto.media.SearchResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 /**
  * OpenAPI documentation interface for the Feed Controller.
@@ -22,9 +22,9 @@ public interface FeedControllerDoc {
 
     @Operation(
             summary = "Get discovery feed",
-            description = "Returns a randomized list of albums for the homepage discovery feed. " +
-                    "This endpoint is public and does not require authentication. " +
-                    "Results are shuffled for variety on each request."
+            description = "Returns a paginated list of albums for the homepage discovery feed. " +
+                    "Authenticated users (with AUTH_TOKEN cookie) can request up to 50 items. " +
+                    "Guests are limited to 5 items per request."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -32,9 +32,13 @@ public interface FeedControllerDoc {
                     description = "Discovery feed retrieved successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = MediaResponse.class))
+                            schema = @Schema(implementation = SearchResponse.class)
                     )
             )
     })
-    ResponseEntity<List<MediaResponse>> getDiscoveryFeed();
+    ResponseEntity<SearchResponse<MediaResponse>> getDiscoveryFeed(
+            @Parameter(description = "Page number (0-indexed)", example = "0") int page,
+            @Parameter(description = "Page size (max 5 for guests, max 50 for authenticated)", example = "10") int size,
+            HttpServletRequest request
+    );
 }

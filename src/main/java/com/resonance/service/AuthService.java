@@ -6,8 +6,11 @@ import com.resonance.dto.auth.RegisterRequest;
 import com.resonance.entities.User;
 import com.resonance.entities.enums.OAuthProvider;
 import com.resonance.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,8 +27,14 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    @Value("${spring.security.jwt.cookie-name}")
+    private String cookieName;
+
+    @Value("${spring.security.jwt.expiration}")
+    private int jwtExpiration;
+
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request, HttpServletResponse response) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -42,11 +51,12 @@ public class AuthService {
 
         userRepository.save(user);
         String token = jwtService.generateToken(user);
+        addCookie(response, token);
         log.info("New user registered: {}", user.getEmail());
-        return new AuthResponse(token, user.getEmail(), user.getUsername());
+        return new AuthResponse(user.getEmail(), user.getUsername());
     }
 
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -55,7 +65,17 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 
         String token = jwtService.generateToken(user);
+        addCookie(response, token);
         log.info("User logged in: {}", user.getEmail());
-        return new AuthResponse(token, user.getEmail(), user.getUsername());
+        return new AuthResponse(user.getEmail(), user.getUsername());
+    }
+
+    private void addCookie(HttpServletResponse response, String jwt) {
+        Cookie cookie = new Cookie(cookieName, jwt);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // false for dev
+        cookie.setPath("/");
+        cookie.setMaxAge(jwtExpiration / 1000);
+        response.addCookie(cookie);
     }
 }

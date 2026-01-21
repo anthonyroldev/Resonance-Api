@@ -20,7 +20,7 @@ public final class ITunesClient {
     private static final int DEFAULT_LIMIT = 20;
     private static final String MEDIA_MUSIC = "music";
     private static final String ENTITY_ALBUM = "album";
-    private static final String ENTITY_SONG = "song";
+    private static final String ENTITY_SONG = "musicTrack";
     private static final String ENTITY_MUSIC_ARTIST = "musicArtist";
 
     private final RestClient restClient;

@@ -19,18 +19,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
- * Service for managing media entities with lazy caching strategy.
+ * Service for managing media entities with caching strategies.
  * <p>
- * Implements a "lazy loading" pattern:
+ * Implements two caching patterns:
+ * <p>
+ * <b>Lazy Caching</b> (for individual lookups):
  * 1. Check local database cache first
  * 2. If not found, fetch from iTunes API
  * 3. Persist to database for future requests
  * 4. Return the result
  * <p>
- * This minimizes external API calls while building the local database organically.
+ * <b>Eager Caching</b> (for search/feed results):
+ * 1. Fetch results from iTunes API
+ * 2. Batch check which entities already exist in DB
+ * 3. Persist new entities to database
+ * 4. Return merged list of all entities
+ * <p>
+ * This builds the local database organically as users browse and search.
  */
 @Slf4j
 @Service
@@ -164,7 +178,148 @@ public class MediaService {
         log.debug("Should update rating stats for media: {}", media.getId());
     }
 
+    // ==================== Eager Caching Methods ====================
+
+    /**
+     * Sync albums from iTunes results to local DB (Eager Caching).
+     * <p>
+     * Algorithm:
+     * 1. Filter valid album results
+     * 2. Batch fetch existing entities from DB
+     * 3. Filter out already-cached entities
+     * 4. Map new results to Album entities
+     * 5. Batch save new entities
+     * 6. Return merged list (existing + newly saved)
+     *
+     * @param results list of iTunes results to sync
+     * @return list of Media entities (from DB) corresponding to the input results
+     */
+    @Transactional
+    public List<Media> syncAlbums(List<ITunesResult> results) {
+        return syncMedia(
+                results,
+                ITunesResult::collectionId,
+                ITunesResult::isCollection,
+                iTunesEntityMapper::toAlbumEntity
+        );
+    }
+
+    /**
+     * Sync tracks from iTunes results to local DB (Eager Caching).
+     *
+     * @param results list of iTunes results to sync
+     * @return list of Media entities (from DB) corresponding to the input results
+     */
+    @Transactional
+    public List<Media> syncTracks(List<ITunesResult> results) {
+        return syncMedia(
+                results,
+                ITunesResult::trackId,
+                ITunesResult::isTrack,
+                iTunesEntityMapper::toTrackEntity
+        );
+    }
+
+    /**
+     * Sync artists from iTunes results to local DB (Eager Caching).
+     *
+     * @param results list of iTunes results to sync
+     * @return list of Media entities (from DB) corresponding to the input results
+     */
+    @Transactional
+    public List<Media> syncArtists(List<ITunesResult> results) {
+        return syncMedia(
+                results,
+                ITunesResult::artistId,
+                ITunesResult::isArtist,
+                iTunesEntityMapper::toArtistEntity
+        );
+    }
+
+    /**
+     * Convert a list of Media entities to MediaResponse DTOs.
+     *
+     * @param mediaList list of Media entities
+     * @return list of MediaResponse DTOs
+     */
+    public List<MediaResponse> toMediaResponses(List<Media> mediaList) {
+        if (mediaList == null || mediaList.isEmpty()) {
+            return List.of();
+        }
+        return mediaList.stream()
+                .map(this::mapMediaToResponse)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
     // ==================== Private Helper Methods ====================
+
+    /**
+     * Generic sync helper method for eager caching.
+     * <p>
+     * Algorithm:
+     * 1. Filter valid results by type predicate
+     * 2. Extract IDs, batch fetch existing from DB
+     * 3. Filter to find genuinely new results
+     * 4. Map new results to entities, batch save
+     * 5. Return merged list (existing + newly saved)
+     *
+     * @param results       list of iTunes results to process
+     * @param idExtractor   function to extract the ID from an iTunes result
+     * @param typeFilter    predicate to filter results by type
+     * @param entityMapper  function to map an iTunes result to a Media entity
+     * @return list of Media entities corresponding to the input results
+     */
+    private List<Media> syncMedia(
+            List<ITunesResult> results,
+            Function<ITunesResult, Long> idExtractor,
+            Predicate<ITunesResult> typeFilter,
+            Function<ITunesResult, ? extends Media> entityMapper
+    ) {
+        if (results == null || results.isEmpty()) {
+            return List.of();
+        }
+
+        // 1. Filter by type and valid ID
+        List<ITunesResult> validResults = results.stream()
+                .filter(typeFilter)
+                .filter(r -> idExtractor.apply(r) != null)
+                .toList();
+
+        if (validResults.isEmpty()) {
+            return List.of();
+        }
+
+        // 2. Extract IDs
+        List<String> ids = validResults.stream()
+                .map(r -> String.valueOf(idExtractor.apply(r)))
+                .toList();
+
+        // 3. Batch fetch existing entities
+        List<Media> existingEntities = mediaRepository.findAllByIdIn(ids);
+        Set<String> existingIds = existingEntities.stream()
+                .map(Media::getId)
+                .collect(Collectors.toSet());
+
+        log.debug("Eager caching: {} results, {} already in DB", validResults.size(), existingIds.size());
+
+        // 4. Filter new results and map to entities
+        List<Media> newEntities = validResults.stream()
+                .filter(r -> !existingIds.contains(String.valueOf(idExtractor.apply(r))))
+                .map(entityMapper)
+                .filter(Objects::nonNull)
+                .map(entity -> (Media) entity)
+                .toList();
+
+        // 5. Batch save new entities
+        if (!newEntities.isEmpty()) {
+            List<Media> savedEntities = mediaRepository.saveAll(newEntities);
+            log.info("Eagerly cached {} new media entities", savedEntities.size());
+        }
+
+        // 6. Return all entities (re-fetch to ensure consistent state)
+        return mediaRepository.findAllByIdIn(ids);
+    }
 
     /**
      * Fetches media from iTunes and caches it to the database.
