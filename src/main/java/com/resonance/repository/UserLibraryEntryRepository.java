@@ -12,9 +12,8 @@ public interface UserLibraryEntryRepository extends JpaRepository<UserLibraryEnt
 
     Optional<UserLibraryEntry> findByUserIdAndMediaId(UUID userId, String mediaId);
 
-    List<UserLibraryEntry> findAllByUserId(UUID userId);
+    List<UserLibraryEntry> findByUserIdAndIsFavoriteFalse(UUID userId);
 
     List<UserLibraryEntry> findByUserIdAndIsFavoriteTrue(UUID userId);
 
-    boolean existsByUserIdAndMediaId(UUID userId, String mediaId);
 }

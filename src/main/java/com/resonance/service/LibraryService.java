@@ -168,7 +168,7 @@ public class LibraryService {
      */
     @Transactional(readOnly = true)
     public List<LibraryEntryResponse> getUserLibrary(UUID userId) {
-        return libraryMapper.toResponseList(libraryEntryRepository.findAllByUserId(userId));
+        return libraryMapper.toResponseList(libraryEntryRepository.findByUserIdAndIsFavoriteFalse(userId));
     }
 
     /**
