@@ -7,5 +7,6 @@
     <include file="changes/1768066946-initial-schema.xml" relativeToChangelogFile="true"/>
     <include file="changes/1768067000-add-google-id.xml" relativeToChangelogFile="true"/>
     <include file="changes/1768067100-add-password.xml" relativeToChangelogFile="true"/>
+    <include file="changes/1737500000-add-preview-url.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
