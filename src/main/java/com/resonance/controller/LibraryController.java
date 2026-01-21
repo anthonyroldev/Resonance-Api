@@ -1,6 +1,7 @@
 package com.resonance.controller;
 
 import com.resonance.controller.doc.LibraryControllerDoc;
+import com.resonance.dto.favorite.AddToFavoriteRequest;
 import com.resonance.dto.library.AddToLibraryRequest;
 import com.resonance.dto.library.LibraryEntryResponse;
 import com.resonance.dto.library.UpdateLibraryEntryRequest;
@@ -55,6 +56,15 @@ public class LibraryController implements LibraryControllerDoc {
             Principal principal) {
         User user = getCurrentUser(principal);
         LibraryEntryResponse response = libraryService.addToLibrary(user, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/favorites")
+    public ResponseEntity<LibraryEntryResponse> addToFavorite(
+            @Valid @RequestBody AddToFavoriteRequest request,
+            Principal principal) {
+        User user = getCurrentUser(principal);
+        LibraryEntryResponse response = libraryService.addToFavorites(user, request.mediaId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

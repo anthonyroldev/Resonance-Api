@@ -75,6 +75,40 @@ public class LibraryService {
         return libraryMapper.toResponse(saved);
     }
 
+    @Transactional
+    public LibraryEntryResponse addToFavorites(User user, String mediaId) {
+        log.info("Adding media {} to favorites for user {}", mediaId, user.getId());
+
+        Media media = mediaService.getOrCreateMedia(
+                mediaId,
+                null,
+                null,
+                null
+        );
+
+        // Check if entry already exists
+        Optional<UserLibraryEntry> existingEntry = libraryEntryRepository
+                .findByUserIdAndMediaId(user.getId(), mediaId);
+
+        if (existingEntry.isPresent()) {
+            // Update existing entry to set favorite
+            return updateLibraryEntry(user, existingEntry.get().getId(),
+                    UpdateLibraryEntryRequest.builder()
+                            .isFavorite(true)
+                            .build());
+        }
+
+        UserLibraryEntry entry = UserLibraryEntry.builder()
+                .user(user)
+                .media(media)
+                .isFavorite(true)
+                .build();
+
+        UserLibraryEntry saved = libraryEntryRepository.save(entry);
+
+        return libraryMapper.toResponse(saved);
+    }
+
     /**
      * Update an existing library entry.
      */

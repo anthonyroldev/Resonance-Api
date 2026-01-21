@@ -11,7 +11,7 @@ import lombok.Builder;
 
 @Builder
 public record AddToLibraryRequest(
-    @NotBlank(message = "Media ID (Spotify ID) is required")
+    @NotBlank(message = "Media ID is required")
     String mediaId,
 
     @NotNull(message = "Media type is required")
