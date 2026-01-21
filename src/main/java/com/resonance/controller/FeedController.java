@@ -21,8 +21,11 @@ import org.springframework.web.util.WebUtils;
  * REST controller for the public discovery feed.
  * <p>
  * This controller provides unauthenticated access to a randomized
- * feed of albums, allowing users to explore content before registering.
- * Authenticated users get unlimited pagination; guests are limited to 5 albums.
+ * feed of tracks with 30-second audio previews, allowing users to explore
+ * content before registering. Each track includes a previewUrl for
+ * TikTok-style audio playback.
+ * <p>
+ * Authenticated users get unlimited pagination; guests are limited to 5 tracks.
  */
 @RestController
 @RequiredArgsConstructor
@@ -38,10 +41,11 @@ public class FeedController implements FeedControllerDoc {
     private String cookieName;
 
     /**
-     * Returns a paginated discovery feed of albums.
+     * Returns a paginated discovery feed of tracks with audio previews.
      * <p>
      * Authenticated users (with valid AUTH_TOKEN cookie) can request up to 50 items.
-     * Guests are limited to 5 items per request.
+     * Guests are limited to 5 items per request. Each track includes a previewUrl
+     * for 30-second audio playback.
      */
     @Override
     @GetMapping

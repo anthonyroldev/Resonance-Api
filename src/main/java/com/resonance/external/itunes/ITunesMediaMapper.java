@@ -60,6 +60,7 @@ public final class ITunesMediaMapper {
                 .type(MediaType.TRACK)
                 .itunesUrl(result.trackViewUrl())
                 .genre(result.primaryGenreName())
+                .previewUrl(result.previewUrl())
                 .build();
     }
 

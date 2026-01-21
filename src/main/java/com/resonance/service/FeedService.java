@@ -21,6 +21,9 @@ import java.util.List;
  * <p>
  * Implements eager caching: all feed results are persisted to the local
  * database before being returned, building the catalog as users browse.
+ * <p>
+ * The feed returns tracks (songs) with 30-second audio previews, enabling
+ * TikTok-style audio playback in the frontend.
  */
 @Slf4j
 @Service
@@ -61,18 +64,21 @@ public class FeedService {
     private final SecureRandom random = new SecureRandom();
 
     /**
-     * Generates a paginated discovery feed of albums.
+     * Generates a paginated discovery feed of tracks with audio previews.
      * <p>
      * Algorithm:
      * 1. Pick a random keyword from the curated list
-     * 2. Fetch albums from iTunes Search API
+     * 2. Fetch tracks from iTunes Search API (entity=song provides previewUrl)
      * 3. Eagerly cache all results to the database
      * 4. Shuffle results for additional randomness
      * 5. Apply pagination
+     * <p>
+     * Using tracks instead of albums ensures each item has a 30-second
+     * audio preview URL for TikTok-style playback.
      *
      * @param page page number (0-indexed)
      * @param size page size
-     * @return paginated SearchResponse with albums
+     * @return paginated SearchResponse with tracks including previewUrl
      */
     public SearchResponse<MediaResponse> getDiscoveryFeed(int page, int size) {
         String keyword = DISCOVERY_KEYWORDS.get(random.nextInt(DISCOVERY_KEYWORDS.size()));
@@ -80,7 +86,7 @@ public class FeedService {
 
         // Fetch enough results for pagination
         int fetchLimit = Math.min((page + 1) * size, MAX_ITUNES_LIMIT);
-        ITunesResponse response = iTunesClient.searchAlbums(keyword, fetchLimit);
+        ITunesResponse response = iTunesClient.searchTracks(keyword, fetchLimit);
 
         if (response.results() == null || response.results().isEmpty()) {
             log.warn("No results from iTunes for discovery keyword: '{}'", keyword);
@@ -88,7 +94,7 @@ public class FeedService {
         }
 
         // Sync to DB (eager caching) and convert to DTOs
-        List<Media> syncedMedia = mediaService.syncAlbums(response.results());
+        List<Media> syncedMedia = mediaService.syncTracks(response.results());
         List<MediaResponse> allResults = new ArrayList<>(
                 mediaService.toMediaResponses(syncedMedia)
         );
@@ -104,7 +110,7 @@ public class FeedService {
                 ? allResults.subList(fromIndex, toIndex)
                 : List.of();
 
-        log.debug("Discovery feed: {} albums total, returning page {} with {} items", totalElements, page, pageContent.size());
+        log.debug("Discovery feed: {} tracks total, returning page {} with {} items", totalElements, page, pageContent.size());
 
         return SearchResponse.<MediaResponse>builder()
                 .content(pageContent)

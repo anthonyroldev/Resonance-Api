@@ -31,4 +31,7 @@ public class Track extends Media {
 
     @Column(name = "thumbnail_url", length = 512)
     private String thumbnailUrl;
+
+    @Column(name = "preview_url", length = 512)
+    private String previewUrl;
 }

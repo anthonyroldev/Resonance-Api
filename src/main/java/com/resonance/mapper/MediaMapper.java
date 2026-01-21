@@ -20,14 +20,15 @@ public interface MediaMapper {
     // ==================== Entity to Response mappings ====================
 
     @Mapping(target = "type", constant = "ALBUM")
+    @Mapping(target = "previewUrl", ignore = true)
     MediaResponse albumToResponse(Album album);
 
     @Mapping(target = "type", constant = "ARTIST")
     @Mapping(target = "releaseDate", ignore = true)
+    @Mapping(target = "previewUrl", ignore = true)
     MediaResponse artistToResponse(Artist artist);
 
     @Mapping(target = "type", constant = "TRACK")
-    @Mapping(target = "imageUrl", source = "thumbnailUrl")
-    @Mapping(target = "releaseDate", ignore = true)
+    @Mapping(target = "imageUrl", source = "imageUrl")
     MediaResponse trackToResponse(Track track);
 }

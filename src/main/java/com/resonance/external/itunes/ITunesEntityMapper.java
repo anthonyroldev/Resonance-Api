@@ -67,6 +67,7 @@ public final class ITunesEntityMapper {
                 .genre(result.primaryGenreName())
                 .duration(durationMs)
                 .trackNumber(result.trackNumber())
+                .previewUrl(result.previewUrl())
                 .build();
     }
 

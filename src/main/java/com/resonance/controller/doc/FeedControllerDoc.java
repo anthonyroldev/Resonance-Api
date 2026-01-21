@@ -22,7 +22,8 @@ public interface FeedControllerDoc {
 
     @Operation(
             summary = "Get discovery feed",
-            description = "Returns a paginated list of albums for the homepage discovery feed. " +
+            description = "Returns a paginated list of tracks with 30-second audio previews for the homepage discovery feed. " +
+                    "Each track includes a previewUrl for TikTok-style audio playback. " +
                     "Authenticated users (with AUTH_TOKEN cookie) can request up to 50 items. " +
                     "Guests are limited to 5 items per request."
     )

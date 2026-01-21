@@ -38,7 +38,8 @@ public record ITunesResult(
         Long trackTimeMillis,
         Integer discCount,
         Integer discNumber,
-        Integer trackNumber
+        Integer trackNumber,
+        String previewUrl
 ) {
     /**
      * Checks if this result represents a collection (album).

@@ -16,5 +16,6 @@ public record MediaResponse(
     Double averageRating,
     Integer ratingCount,
     String description,
-    String genre
+    String genre,
+    String previewUrl
 ) {}
