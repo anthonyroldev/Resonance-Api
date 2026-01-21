@@ -31,7 +31,7 @@ public class FeedService {
      * These keywords are designed to return diverse, popular music content.
      */
     private static final List<String> DISCOVERY_KEYWORDS = List.of(
-            "Top Hits 2024",
+            "Top Hits 2025",
             "Pop Hits",
             "Rock Classics",
             "Hip Hop",
@@ -84,7 +84,6 @@ public class FeedService {
                 iTunesMediaMapper.toAlbumResponses(response.results())
         );
 
-        // Shuffle for additional randomness
         Collections.shuffle(results, random);
 
         log.debug("Discovery feed generated with {} albums for keyword: '{}'", results.size(), keyword);
