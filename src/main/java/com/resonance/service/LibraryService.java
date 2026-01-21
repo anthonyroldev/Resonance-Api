@@ -52,8 +52,6 @@ public class LibraryService {
             // Update existing entry
             return updateLibraryEntry(user, existingEntry.get().getId(),
                     UpdateLibraryEntryRequest.builder()
-                            .rating(request.rating())
-                            .isFavorite(request.isFavorite())
                             .comment(request.comment())
                             .build());
         }
@@ -62,15 +60,10 @@ public class LibraryService {
         UserLibraryEntry entry = UserLibraryEntry.builder()
                 .user(user)
                 .media(media)
-                .rating(request.rating())
-                .isFavorite(request.isFavorite() != null ? request.isFavorite() : false)
                 .comment(request.comment())
                 .build();
 
         UserLibraryEntry saved = libraryEntryRepository.save(entry);
-
-        // Update media rating statistics
-        mediaService.updateMediaRatingStats(media, request.rating());
 
         return libraryMapper.toResponse(saved);
     }

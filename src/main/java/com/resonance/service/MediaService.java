@@ -164,20 +164,6 @@ public class MediaService {
                 });
     }
 
-    /**
-     * Update media rating statistics.
-     *
-     * @param media     the media entity to update
-     * @param newRating the new rating value
-     */
-    public void updateMediaRatingStats(Media media, Integer newRating) {
-        if (newRating == null) return;
-
-        // This is a simplified implementation - in production you'd want to
-        // recalculate based on all ratings for this media
-        log.debug("Should update rating stats for media: {}", media.getId());
-    }
-
     // ==================== Eager Caching Methods ====================
 
     /**
@@ -252,24 +238,6 @@ public class MediaService {
                 .toList();
     }
 
-    // ==================== Private Helper Methods ====================
-
-    /**
-     * Generic sync helper method for eager caching.
-     * <p>
-     * Algorithm:
-     * 1. Filter valid results by type predicate
-     * 2. Extract IDs, batch fetch existing from DB
-     * 3. Filter to find genuinely new results
-     * 4. Map new results to entities, batch save
-     * 5. Return merged list (existing + newly saved)
-     *
-     * @param results       list of iTunes results to process
-     * @param idExtractor   function to extract the ID from an iTunes result
-     * @param typeFilter    predicate to filter results by type
-     * @param entityMapper  function to map an iTunes result to a Media entity
-     * @return list of Media entities corresponding to the input results
-     */
     private List<Media> syncMedia(
             List<ITunesResult> results,
             Function<ITunesResult, Long> idExtractor,
