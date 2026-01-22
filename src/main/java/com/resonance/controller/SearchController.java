@@ -5,6 +5,7 @@ import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.media.SearchResponse;
 import com.resonance.service.SearchService;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,9 @@ public class SearchController implements SearchControllerDoc {
      */
     @Override
     @GetMapping("/albums")
-    public ResponseEntity<SearchResponse<MediaResponse>> searchAlbums(@RequestParam String q) {
+    public ResponseEntity<SearchResponse<MediaResponse>> searchAlbums(
+            @RequestParam
+            @Min(value = 3, message = "recherche avec au moins 3 caractères") String q) {
         SearchResponse<MediaResponse> response = searchService.searchAlbums(q);
         return ResponseEntity.ok(response);
     }
@@ -47,7 +50,9 @@ public class SearchController implements SearchControllerDoc {
      */
     @Override
     @GetMapping("/artists")
-    public ResponseEntity<SearchResponse<MediaResponse>> searchArtists(@RequestParam String q) {
+    public ResponseEntity<SearchResponse<MediaResponse>> searchArtists(
+            @RequestParam
+            @Min(value = 3, message = "recherche avec au moins 3 caractères") String q) {
         SearchResponse<MediaResponse> response = searchService.searchArtists(q);
         return ResponseEntity.ok(response);
     }
@@ -60,7 +65,9 @@ public class SearchController implements SearchControllerDoc {
      */
     @Override
     @GetMapping("/tracks")
-    public ResponseEntity<SearchResponse<MediaResponse>> searchTracks(@RequestParam String q) {
+    public ResponseEntity<SearchResponse<MediaResponse>> searchTracks(
+            @RequestParam
+            @Min(value = 3, message = "recherche avec au moins 3 caractères") String q) {
         SearchResponse<MediaResponse> response = searchService.searchTracks(q);
         return ResponseEntity.ok(response);
     }
