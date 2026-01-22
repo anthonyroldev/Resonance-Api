@@ -1,4 +1,4 @@
-package com.resonance.controller;
+package com.resonance.service;
 
 import com.resonance.dto.auth.AuthResponse;
 import com.resonance.repository.UserRepository;

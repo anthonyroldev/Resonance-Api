@@ -1,6 +1,7 @@
 package com.resonance.controller;
 
 import com.resonance.dto.auth.AuthResponse;
+import com.resonance.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;

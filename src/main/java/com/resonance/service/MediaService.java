@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Service for managing media entities with caching strategies.
@@ -458,5 +459,15 @@ public class MediaService {
                 .title(title != null ? title : "Unknown Track")
                 .artistName(artistName != null ? artistName : "Unknown Artist")
                 .build();
+    }
+
+    public List<Media> syncAll(List<ITunesResult> results) {
+        List<Media> syncedAlbums = syncAlbums(results);
+        List<Media> syncedArtists = syncArtists(results);
+        List<Media> syncedTracks = syncTracks(results);
+
+        return Stream.of(syncedAlbums, syncedArtists, syncedTracks)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

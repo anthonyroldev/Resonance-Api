@@ -5,10 +5,8 @@ import com.resonance.dto.media.SearchResponse;
 import com.resonance.entities.Media;
 import com.resonance.external.itunes.ITunesClient;
 import com.resonance.external.itunes.ITunesResponse;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -105,5 +103,13 @@ public final class SearchService {
                 .totalElements(content != null ? content.size() : 0)
                 .totalPages(1)
                 .build();
+    }
+
+    public SearchResponse<MediaResponse> searchAll(String q, Integer limit) {
+        var results = iTunesClient.searchAll(q, limit);
+
+        List<Media> syncedMedia = mediaService.syncAll(results.results());
+        List<MediaResponse> mediaResponses = mediaService.toMediaResponses(syncedMedia);
+        return buildSearchResponse(mediaResponses);
     }
 }

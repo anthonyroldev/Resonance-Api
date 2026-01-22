@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.constraints.Size;
+
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -42,6 +44,7 @@ public interface SearchControllerDoc {
     })
     ResponseEntity<SearchResponse<MediaResponse>> searchAlbums(
             @Parameter(description = "Search query", required = true, example = "The Beatles")
+            @Size(min = 3, message = "recherche avec au moins 3 caractères")
             String q
     );
 
@@ -66,6 +69,7 @@ public interface SearchControllerDoc {
     })
     ResponseEntity<SearchResponse<MediaResponse>> searchArtists(
             @Parameter(description = "Search query", required = true, example = "Taylor Swift")
+            @Size(min = 3, message = "recherche avec au moins 3 caractères")
             String q
     );
 
@@ -90,6 +94,7 @@ public interface SearchControllerDoc {
     })
     ResponseEntity<SearchResponse<MediaResponse>> searchTracks(
             @Parameter(description = "Search query", required = true, example = "Bohemian Rhapsody")
+            @Size(min = 3, message = "recherche avec au moins 3 caractères")
             String q
     );
 }

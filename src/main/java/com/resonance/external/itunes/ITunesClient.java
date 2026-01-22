@@ -78,6 +78,10 @@ public final class ITunesClient {
         return search(query, ENTITY_SONG, limit);
     }
 
+    public ITunesResponse searchAll(String query, int limit){
+        return search(query, null, limit);
+    }
+
     /**
      * Search for artists in the iTunes Store.
      *
