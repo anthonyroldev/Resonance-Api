@@ -20,4 +20,11 @@ public class UserService {
                 .username(foundUser.getUsername())
                 .build();
     }
+
+    public void deleteUser(UserDetails user) {
+        var foundUser = userRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userRepository.delete(foundUser);
+    }
 }
