@@ -27,13 +27,6 @@ public class LibraryController implements LibraryControllerDoc {
     private final LibraryService libraryService;
     private final UserRepository userRepository;
 
-    /**
-     * Adds a media item to the user's library.
-     *
-     * @param request   the request containing media details and optional rating/favorite/comment
-     * @param principal the authenticated user
-     * @return the created library entry
-     */
     @Override
     @PostMapping
     public ResponseEntity<LibraryEntryResponse> addToLibrary(
@@ -53,14 +46,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Updates an existing library entry.
-     *
-     * @param entryId   the ID of the library entry to update
-     * @param request   the update request with new rating/favorite/comment values
-     * @param principal the authenticated user
-     * @return the updated library entry
-     */
     @Override
     @PutMapping("/{entryId}")
     public ResponseEntity<LibraryEntryResponse> updateLibraryEntry(
@@ -72,13 +57,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Removes a media item from the user's library.
-     *
-     * @param mediaId   the iTunes ID of the media to remove
-     * @param principal the authenticated user
-     * @return 204 No Content on success
-     */
     @Override
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<Void> removeFromLibrary(
@@ -89,12 +67,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Retrieves all entries in the user's library.
-     *
-     * @param principal the authenticated user
-     * @return list of all library entries
-     */
     @Override
     @GetMapping
     public ResponseEntity<List<LibraryEntryResponse>> getUserLibrary(Principal principal) {
@@ -103,12 +75,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Retrieves all favorites from the user's library.
-     *
-     * @param principal the authenticated user
-     * @return list of library entries marked as favorite
-     */
     @Override
     @GetMapping("/favorites")
     public ResponseEntity<List<LibraryEntryResponse>> getUserFavorites(Principal principal) {
@@ -117,13 +83,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Retrieves a specific library entry for a media item.
-     *
-     * @param mediaId   the iTunes ID of the media
-     * @param principal the authenticated user
-     * @return the library entry if found, 404 otherwise
-     */
     @Override
     @GetMapping("/{mediaId}")
     public ResponseEntity<LibraryEntryResponse> getLibraryEntry(
@@ -137,9 +96,6 @@ public class LibraryController implements LibraryControllerDoc {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Retrieves the current authenticated user from the principal.
-     */
     private User getCurrentUser(Principal principal) {
         return userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalStateException("User not found: " + principal.getName()));
