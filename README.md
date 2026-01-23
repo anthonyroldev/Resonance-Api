@@ -1,15 +1,26 @@
 # Resonance Music Library
 
 Plateforme de catalogage musical ("Letterboxd for Music").
-La web-app permet aux utilisateurs de construire et partager leur bibliothèque musicale, découvrir de nouveaux artistes et se connecter avec d'autres passionnés de musique.
+La web-app permet aux utilisateurs de construire et partager leur bibliothèque musicale et de découvrir de nouveaux artistes.
+
+## Lancer le backend
+
+Avec Docker Compose :
+```
+docker-compose up -d --build
+```
+
+Avec Gradle :
+```
+./gradlew bootRun
+```
 
 ## Thème du Projet
 
 Resonance est une application de gestion de bibliothèque musicale connectée. Elle permet aux utilisateurs de :
 
-1. **Cataloguer** : Construire sa discothèque virtuelle via l'API Spotify (Albums, Sons, Artistes).
-2. **Socialiser** : Découvrir ses "âmes sœurs musicales" grâce à un algorithme de compatibilité (Matching) basé sur les goûts communs stockés en base de données.
-3. **Explorer** : Centraliser ses écoutes et découvertes issues de multiples sources (Spotify, YouTube Music, etc.) via une authentification unifiée.
+1. **Cataloguer** : Construire sa discothèque virtuelle via l'API ITunes (Albums, Sons, Artistes).
+2. **Découvrir** : Explorer de nouveaux artistes et albums.
 
 ## Stack Technique
 
