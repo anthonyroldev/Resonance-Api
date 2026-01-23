@@ -3,12 +3,11 @@ package com.resonance.controller;
 import com.resonance.controller.doc.SearchControllerDoc;
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.media.SearchResponse;
+import com.resonance.entities.enums.MediaType;
 import com.resonance.service.SearchService;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +35,9 @@ public class SearchController implements SearchControllerDoc {
             @RequestParam
             @Size(min = 3, message = "recherche avec au moins 3 caractères") String q,
             @RequestParam(defaultValue = "10")
-            @Min(value = 1, message = "la limite doit être au moins 1") int limit) {
-        SearchResponse<MediaResponse> response = searchService.searchAll(q, limit);
+            @Min(value = 1, message = "la limite doit être au moins 1") int limit,
+            @RequestParam(required = false, defaultValue = "TRACK") MediaType type) {
+        SearchResponse<MediaResponse> response = searchService.searchAll(q, limit, type);
         return ResponseEntity.ok(response);
     }
 

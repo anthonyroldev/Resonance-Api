@@ -78,8 +78,8 @@ public final class ITunesClient {
         return search(query, ENTITY_SONG, limit);
     }
 
-    public ITunesResponse searchAll(String query, int limit){
-        return search(query, null, limit);
+    public ITunesResponse searchAll(String query, String entity, int limit){
+        return search(query, entity, limit);
     }
 
     /**

@@ -59,6 +59,18 @@ spring:
         header: false
       default: v1
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 # iTunes Search API configuration
 itunes:
   base-url: https://itunes.apple.com
+

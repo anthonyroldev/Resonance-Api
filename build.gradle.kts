@@ -36,6 +36,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-json")
     testImplementation("io.projectreactor:reactor-test")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.2")
+    testImplementation("org.testcontainers:postgresql")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -43,6 +47,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("org.mapstruct:mapstruct:1.6.3")

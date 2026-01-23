@@ -3,6 +3,7 @@ package com.resonance.service;
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.dto.media.SearchResponse;
 import com.resonance.entities.Media;
+import com.resonance.entities.enums.MediaType;
 import com.resonance.external.itunes.ITunesClient;
 import com.resonance.external.itunes.ITunesResponse;
 import lombok.RequiredArgsConstructor;
@@ -105,8 +106,8 @@ public final class SearchService {
                 .build();
     }
 
-    public SearchResponse<MediaResponse> searchAll(String q, Integer limit) {
-        var results = iTunesClient.searchAll(q, limit);
+    public SearchResponse<MediaResponse> searchAll(String q, Integer limit, MediaType type) {
+        var results = iTunesClient.searchAll(q, type.getValue(), limit);
 
         List<Media> syncedMedia = mediaService.syncAll(results.results());
         List<MediaResponse> mediaResponses = mediaService.toMediaResponses(syncedMedia);
