@@ -28,12 +28,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * REST controller for user library management.
- * <p>
- * Handles CRUD operations for the user's personal music library,
- * including ratings, favorites, and comments.
- */
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/library")

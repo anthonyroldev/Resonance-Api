@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * REST controller for music search operations.
- * <p>
- * Provides search functionality for albums, artists, and tracks
- * using the iTunes Search API. Requires authentication.
- */
 @Validated
 @RestController
 @RequiredArgsConstructor
