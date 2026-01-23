@@ -15,6 +15,13 @@ Avec Gradle :
 ./gradlew bootRun
 ```
 
+## Documentation de l'API
+
+La documentation de l'API est disponible à l'adresse suivante une fois le backend lancé :
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
 ## Thème du Projet
 
 Resonance est une application de gestion de bibliothèque musicale connectée. Elle permet aux utilisateurs de :
