@@ -3,9 +3,7 @@ package com.resonance.controller;
 import com.resonance.controller.doc.MediaControllerDoc;
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.service.MediaService;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

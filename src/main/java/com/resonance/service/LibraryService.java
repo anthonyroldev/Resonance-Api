@@ -8,12 +8,9 @@ import com.resonance.entities.User;
 import com.resonance.entities.UserLibraryEntry;
 import com.resonance.mapper.LibraryMapper;
 import com.resonance.repository.UserLibraryEntryRepository;
-
 import jakarta.persistence.EntityNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

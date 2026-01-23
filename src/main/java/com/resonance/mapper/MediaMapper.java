@@ -4,7 +4,6 @@ import com.resonance.dto.media.MediaResponse;
 import com.resonance.entities.media.Album;
 import com.resonance.entities.media.Artist;
 import com.resonance.entities.media.Track;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

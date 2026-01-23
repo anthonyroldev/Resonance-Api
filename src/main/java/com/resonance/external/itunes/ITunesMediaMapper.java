@@ -2,7 +2,6 @@ package com.resonance.external.itunes;
 
 import com.resonance.dto.media.MediaResponse;
 import com.resonance.entities.enums.MediaType;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;

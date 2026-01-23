@@ -4,13 +4,10 @@ import com.resonance.entities.User;
 import com.resonance.entities.enums.OAuthProvider;
 import com.resonance.repository.UserRepository;
 import com.resonance.service.JwtService;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;

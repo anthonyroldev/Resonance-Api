@@ -3,7 +3,6 @@ package com.resonance.external.itunes;
 import com.resonance.entities.media.Album;
 import com.resonance.entities.media.Artist;
 import com.resonance.entities.media.Track;
-
 import org.springframework.stereotype.Component;
 
 /**

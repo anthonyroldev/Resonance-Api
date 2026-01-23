@@ -1,7 +1,6 @@
 package com.resonance.dto.library;
 
 import com.resonance.entities.enums.MediaType;
-
 import lombok.Builder;
 
 import java.time.Instant;

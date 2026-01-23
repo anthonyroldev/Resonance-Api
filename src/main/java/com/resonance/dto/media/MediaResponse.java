@@ -1,7 +1,6 @@
 package com.resonance.dto.media;
 
 import com.resonance.entities.enums.MediaType;
-
 import lombok.Builder;
 
 @Builder

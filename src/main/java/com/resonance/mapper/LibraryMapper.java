@@ -2,7 +2,6 @@ package com.resonance.mapper;
 
 import com.resonance.dto.library.LibraryEntryResponse;
 import com.resonance.entities.UserLibraryEntry;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

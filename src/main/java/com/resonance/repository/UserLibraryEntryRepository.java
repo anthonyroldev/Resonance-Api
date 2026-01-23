@@ -1,7 +1,6 @@
 package com.resonance.repository;
 
 import com.resonance.entities.UserLibraryEntry;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
